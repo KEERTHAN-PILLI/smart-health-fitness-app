@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import api from "../api/axios";
 import "../styles/auth.css";
+import { Link } from "react-router-dom";
 
 const Login = () => {
   const { login } = useContext(AuthContext);
@@ -33,9 +34,7 @@ const Login = () => {
           <button>Login</button>
           <p style={{ textAlign: "center", marginTop: "10px" }}>
   Don’t have an account?{" "}
-  <a href="/register" style={{ color: "#1d2671" }}>
-    Register
-  </a>
+ <Link to="/register"  style={{ color: "#1d2671" }}>Register</Link>
 </p>
 
         </form>

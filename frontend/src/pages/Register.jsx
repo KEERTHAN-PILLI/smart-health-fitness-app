@@ -1,6 +1,7 @@
 import { useState } from "react";
 import api from "../api/axios";
 import "../styles/auth.css";
+import { Link } from "react-router-dom";
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -43,9 +44,9 @@ const Register = () => {
           <button>Create Account</button>
           <p style={{ textAlign: "center", marginTop: "10px" }}>
   Already have an account?{" "}
-  <a href="/login" style={{ color: "#1d2671" }}>
+  <Link to="/login" style={{ color: "#1d2671" }}>
     Login
-  </a>
+  </Link>
 </p>
 
         </form>
