@@ -65,9 +65,9 @@ const Register = () => {
 
           <button type="submit">Create Account</button>
 
-          <p style={{ textAlign: "center", marginTop: "10px" }}>
+          <p style={{ textAlign: "center", marginTop: "10px", fontSize: "12px" }}>
             Already have an account?{" "}
-            <Link to="/login" style={{ color: "#1d2671" }}>
+            <Link to="/login" style={{ color: "#1d2671", fontSize: "12px" }}>
               Login
             </Link>
           </p>
