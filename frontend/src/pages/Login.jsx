@@ -72,6 +72,12 @@ const Login = () => {
             required
           />
 
+
+          <p style={{ textAlign: "center", marginTop: "2px" ,fontSize:"12px"}}>
+  <Link to="/forgot-password">Forgot password?</Link>
+</p>
+
+
           <button type="submit">Login</button>
 
           <p style={{ textAlign: "center", marginTop: "10px" }}>

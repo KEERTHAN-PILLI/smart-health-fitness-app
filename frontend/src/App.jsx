@@ -5,6 +5,8 @@ import ProfileSetup from "./pages/ProfileSetup";
 import ProtectedRoute from "./components/ProtectedRoute";
 import UserDashboard from "./pages/UserDashboard";
 import TrainerDashboard from "./pages/TrainerDashboard";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 const App = () => {
   return (
@@ -41,6 +43,9 @@ const App = () => {
           </ProtectedRoute>
         }
       />
+
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+<Route path="/reset-password" element={<ResetPassword />} />
     </Routes>
   );
 };

@@ -2,6 +2,8 @@ import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import db from "../config/db.js";
+import sendEmail from "../utils/sendEmail.js";
+
 
 const router = express.Router();
 
@@ -85,6 +87,76 @@ router.post("/login", async (req, res) => {
   } catch (error) {
     console.error("LOGIN ERROR:", error);
     return res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const [users] = await db.execute(
+      "SELECT id FROM users WHERE email = ?",
+      [email]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: "Email not found" });
+    }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiry = Date.now() + 10 * 60 * 1000; // 10 mins
+
+    await db.execute(
+      "UPDATE users SET reset_code=?, reset_code_expiry=? WHERE email=?",
+      [code, expiry, email]
+    );
+
+    await sendEmail(
+      email,
+      "Password Reset Code",
+      `Your password reset code is: ${code}`
+    );
+
+    res.json({ message: "Reset code sent to email" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// RESET PASSWORD
+router.post("/reset-password", async (req, res) => {
+  const { email, code, newPassword } = req.body;
+
+  try {
+    const [users] = await db.execute(
+      "SELECT reset_code, reset_code_expiry FROM users WHERE email = ?",
+      [email]
+    );
+
+    if (users.length === 0) {
+      return res.status(400).json({ message: "Invalid request" });
+    }
+
+    const user = users[0];
+
+    if (
+      user.reset_code !== code ||
+      Date.now() > user.reset_code_expiry
+    ) {
+      return res.status(400).json({ message: "Invalid or expired code" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await db.execute(
+      "UPDATE users SET password=?, reset_code=NULL, reset_code_expiry=NULL WHERE email=?",
+      [hashedPassword, email]
+    );
+
+    res.json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.error("RESET PASSWORD ERROR:", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
