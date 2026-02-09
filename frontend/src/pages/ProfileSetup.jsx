@@ -1,23 +1,47 @@
 import { useState } from "react";
 import api from "../api/axios";
 import "../styles/auth.css";
+import { useNavigate } from "react-router-dom";
 
 const ProfileSetup = () => {
+  const navigate = useNavigate();
+  const role = localStorage.getItem("role");
+
   const [profile, setProfile] = useState({
     age: "",
     weight: "",
     fitnessGoal: "",
   });
 
-  const handleChange = (e) =>
-    setProfile({ ...profile, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setProfile({
+      ...profile,
+      [e.target.name]: e.target.value,
+    });
+  };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     try {
-      await api.post("/profile", profile);
-      alert("Profile saved successfully");
+      const token = localStorage.getItem("token");
+
+      await api.post("/profile", profile, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      alert("Profile saved successfully ✅");
+
+      // ✅ Redirect based on role
+      if (role === "TRAINER") {
+        navigate("/trainer-dashboard");
+      } else {
+        navigate("/user-dashboard");
+      }
     } catch (err) {
-      alert("Failed to save profile");
+      alert("Failed to save profile ❌");
     }
   };
 
@@ -26,27 +50,35 @@ const ProfileSetup = () => {
       <div className="auth-card">
         <h2>Profile Setup</h2>
 
-        <input
-          name="age"
-          type="number"
-          placeholder="Age"
-          onChange={handleChange}
-        />
+        <form onSubmit={handleSubmit}>
+          <input
+            name="age"
+            type="number"
+            placeholder="Age"
+            value={profile.age}
+            onChange={handleChange}
+            required
+          />
 
-        <input
-          name="weight"
-          type="number"
-          placeholder="Weight (kg)"
-          onChange={handleChange}
-        />
+          <input
+            name="weight"
+            type="number"
+            placeholder="Weight (kg)"
+            value={profile.weight}
+            onChange={handleChange}
+            required
+          />
 
-        <input
-          name="fitnessGoal"
-          placeholder="Fitness Goal"
-          onChange={handleChange}
-        />
+          <input
+            name="fitnessGoal"
+            placeholder="Fitness Goal"
+            value={profile.fitnessGoal}
+            onChange={handleChange}
+            required
+          />
 
-        <button onClick={handleSubmit}>Save Profile</button>
+          <button type="submit">Save Profile</button>
+        </form>
       </div>
     </div>
   );

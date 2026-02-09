@@ -3,18 +3,41 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProfileSetup from "./pages/ProfileSetup";
 import ProtectedRoute from "./components/ProtectedRoute";
+import UserDashboard from "./pages/UserDashboard";
+import TrainerDashboard from "./pages/TrainerDashboard";
 
 const App = () => {
   return (
     <Routes>
+      {/* Public routes */}
       <Route path="/" element={<Login />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+
+      {/* Protected routes */}
       <Route
         path="/profile"
         element={
           <ProtectedRoute>
             <ProfileSetup />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/user-dashboard"
+        element={
+          <ProtectedRoute allowedRole="USER">
+            <UserDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/trainer-dashboard"
+        element={
+          <ProtectedRoute allowedRole="TRAINER">
+            <TrainerDashboard />
           </ProtectedRoute>
         }
       />
