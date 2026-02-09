@@ -1,9 +1,11 @@
 import { useState } from "react";
 import api from "../api/axios";
 import "../styles/auth.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Register = () => {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -18,9 +20,13 @@ const Register = () => {
     e.preventDefault();
     try {
       await api.post("/auth/register", form);
-      alert("Registration successful");
+      alert("Registration successful ✅");
+
+      // ✅ IMPORTANT: go to login after register
+      navigate("/login", { replace: true });
+
     } catch (err) {
-      alert(err.response?.data?.message || "Error");
+      alert(err.response?.data?.message || "Registration failed");
     }
   };
 
@@ -28,27 +34,43 @@ const Register = () => {
     <div className="auth-container">
       <div className="auth-card">
         <h2>Register</h2>
+
         <form onSubmit={handleSubmit}>
-          <input name="name" placeholder="Name" onChange={handleChange} />
-          <input name="email" placeholder="Email" onChange={handleChange} />
+          <input
+            name="name"
+            placeholder="Name"
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            name="email"
+            placeholder="Email"
+            onChange={handleChange}
+            required
+          />
+
           <input
             type="password"
             name="password"
             placeholder="Password"
             onChange={handleChange}
+            required
           />
+
           <select name="role" onChange={handleChange}>
             <option value="USER">User</option>
             <option value="TRAINER">Trainer</option>
           </select>
-          <button>Create Account</button>
-          <p style={{ textAlign: "center", marginTop: "10px" }}>
-  Already have an account?{" "}
-  <Link to="/login" style={{ color: "#1d2671" }}>
-    Login
-  </Link>
-</p>
 
+          <button type="submit">Create Account</button>
+
+          <p style={{ textAlign: "center", marginTop: "10px" }}>
+            Already have an account?{" "}
+            <Link to="/login" style={{ color: "#1d2671" }}>
+              Login
+            </Link>
+          </p>
         </form>
       </div>
     </div>

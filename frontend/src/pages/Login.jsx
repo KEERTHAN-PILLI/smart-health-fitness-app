@@ -40,14 +40,14 @@ const Login = () => {
       login(token, user.role);
 
       // ✅ Redirect based on role
-      if (user.role === "TRAINER") {
-        navigate("/trainer-dashboard");
-      } else {
-        navigate("/user-dashboard");
-      }
-    } catch (error) {
-      alert("Invalid credentials");
+  if (user.role === "TRAINER") {
+      navigate("/trainer-dashboard", { replace: true });
+    } else {
+      navigate("/user-dashboard", { replace: true });
     }
+  } catch {
+    alert("Invalid credentials");
+  }
   };
 
   return (
