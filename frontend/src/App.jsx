@@ -11,12 +11,12 @@ import ResetPassword from "./pages/ResetPassword";
 const App = () => {
   return (
     <Routes>
-      {/* Public routes */}
       <Route path="/" element={<Login />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
-      {/* Protected routes */}
       <Route
         path="/profile"
         element={
@@ -29,7 +29,7 @@ const App = () => {
       <Route
         path="/user-dashboard"
         element={
-          <ProtectedRoute allowedRole="USER">
+          <ProtectedRoute role="USER">
             <UserDashboard />
           </ProtectedRoute>
         }
@@ -38,14 +38,11 @@ const App = () => {
       <Route
         path="/trainer-dashboard"
         element={
-          <ProtectedRoute allowedRole="TRAINER">
+          <ProtectedRoute role="TRAINER">
             <TrainerDashboard />
           </ProtectedRoute>
         }
       />
-
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-<Route path="/reset-password" element={<ResetPassword />} />
     </Routes>
   );
 };

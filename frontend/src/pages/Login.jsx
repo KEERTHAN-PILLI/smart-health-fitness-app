@@ -11,19 +11,19 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // ✅ ADD THIS useEffect HERE (AUTO-REDIRECT)
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
+ useEffect(() => {
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
 
-    if (token && role) {
-      if (role === "TRAINER") {
-        navigate("/trainer-dashboard");
-      } else {
-        navigate("/user-dashboard");
-      }
+  // only redirect if we are on login page
+  if (window.location.hash === "#/login" && token && role) {
+    if (role === "TRAINER") {
+      navigate("/trainer-dashboard", { replace: true });
+    } else {
+      navigate("/user-dashboard", { replace: true });
     }
-  }, [navigate]);
+  }
+}, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
