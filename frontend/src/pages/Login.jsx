@@ -54,7 +54,7 @@ const Login = () => {
 
           <button type="submit">Login</button>
 
-          <p style={{ textAlign: "right", marginTop: "6px" }}>
+          <p style={{ textAlign: "center", marginTop: "6px", fontSize: "12px" }}>
             <Link to="/forgot-password">Forgot password?</Link>
           </p>
 
