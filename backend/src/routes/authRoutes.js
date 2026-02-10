@@ -4,9 +4,6 @@ import jwt from "jsonwebtoken";
 import db from "../config/db.js";
 import sendEmail from "../utils/sendEmail.js";
 
-
-
-
 const router = express.Router();
 
 /**
@@ -20,22 +17,17 @@ router.post("/register", async (req, res) => {
   }
 
   try {
-    // ✅ CHECK USER BY EMAIL ONLY
     const [existing] = await db.execute(
-      "SELECT id, email FROM users WHERE email = ?",
+      "SELECT id FROM users WHERE email = ?",
       [email]
     );
-
-    console.log("REGISTER CHECK:", email, existing);
 
     if (existing.length > 0) {
       return res.status(409).json({ message: "User already exists" });
     }
 
-    // ✅ HASH PASSWORD
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // ✅ INSERT USER
     await db.execute(
       "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
       [name, email, hashedPassword, role]
@@ -92,6 +84,9 @@ router.post("/login", async (req, res) => {
   }
 });
 
+/**
+ * FORGOT PASSWORD (SEND OTP)
+ */
 router.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
 
@@ -120,33 +115,71 @@ router.post("/forgot-password", async (req, res) => {
     );
 
     return res.json({ message: "OTP sent successfully" });
-
   } catch (error) {
     console.error("FORGOT PASSWORD ERROR:", error);
     return res.status(500).json({ message: "Server error" });
   }
 });
 
-
-//verify otp
+/**
+ * VERIFY OTP
+ */
 router.post("/verify-otp", async (req, res) => {
   const { email, otp } = req.body;
 
-  const [users] = await db.execute(
-    "SELECT * FROM users WHERE email=? AND reset_code=?",
-    [email, otp]
-  );
+  try {
+    const [users] = await db.execute(
+      "SELECT * FROM users WHERE email=? AND reset_code=?",
+      [email, otp]
+    );
 
-  if (users.length === 0) {
-    return res.status(400).json({ message: "Invalid OTP" });
+    if (users.length === 0) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    if (Date.now() > users[0].reset_code_expiry) {
+      return res.status(400).json({ message: "OTP expired" });
+    }
+
+    return res.json({ message: "OTP verified" });
+  } catch (error) {
+    console.error("VERIFY OTP ERROR:", error);
+    return res.status(500).json({ message: "Server error" });
   }
-
-  if (Date.now() > users[0].reset_code_expiry) {
-    return res.status(400).json({ message: "OTP expired" });
-  }
-
-  res.json({ message: "OTP verified" });
 });
 
+/**
+ * RESET PASSWORD
+ */
+router.post("/reset-password", async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  try {
+    const [users] = await db.execute(
+      "SELECT * FROM users WHERE email=? AND reset_code=?",
+      [email, otp]
+    );
+
+    if (users.length === 0) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    if (Date.now() > users[0].reset_code_expiry) {
+      return res.status(400).json({ message: "OTP expired" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await db.execute(
+      "UPDATE users SET password=?, reset_code=NULL, reset_code_expiry=NULL WHERE email=?",
+      [hashedPassword, email]
+    );
+
+    return res.json({ message: "Password reset successful" });
+  } catch (error) {
+    console.error("RESET PASSWORD ERROR:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
 
 export default router;
