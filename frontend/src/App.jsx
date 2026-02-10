@@ -10,7 +10,10 @@ import ResetPassword from "./pages/ResetPassword";
 import VerifyOtp from "./pages/VerifyOtp";
 
 
+
 const App = () => {
+
+
   return (
     <Routes>
       <Route path="/" element={<Login />} />
@@ -19,6 +22,8 @@ const App = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/verify-otp" element={<VerifyOtp />} />
+
+      
 
 
       <Route
@@ -50,6 +55,5 @@ const App = () => {
     </Routes>
   );
 };
-navigate("/verify-otp", { state: { email } });
 
 export default App;
