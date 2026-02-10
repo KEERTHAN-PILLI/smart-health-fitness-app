@@ -1,62 +1,64 @@
 import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import api from "../api/axios";
-import { useNavigate } from "react-router-dom";
+import "../styles/auth.css";
 
 const ResetPassword = () => {
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
-  const [form, setForm] = useState({
-    email: "",
-    code: "",
-    password: "",
-    confirm: "",
-  });
+  const location = useLocation();
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const { email, otp } = location.state || {};
 
-  const handleSubmit = async (e) => {
+  const handleReset = async (e) => {
     e.preventDefault();
 
-    if (form.password !== form.confirm) {
+    if (newPassword !== confirmPassword) {
       alert("Passwords do not match");
       return;
     }
 
     try {
       await api.post("/auth/reset-password", {
-        email: form.email,
-        code: form.code,
-        newPassword: form.password,
+        email,
+        otp,
+        newPassword,
       });
 
       alert("Password reset successful");
       navigate("/login");
-    } catch {
-      alert("Invalid or expired code");
+    } catch (err) {
+      alert(err.response?.data?.message || "Reset failed");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Reset Password</h2>
+    <div className="auth-container">
+      <div className="auth-card">
+        <h2>Set New Password</h2>
 
-      <input name="email" placeholder="Email" onChange={handleChange} />
-      <input name="code" placeholder="Reset Code" onChange={handleChange} />
-      <input
-        type="password"
-        name="password"
-        placeholder="New Password"
-        onChange={handleChange}
-      />
-      <input
-        type="password"
-        name="confirm"
-        placeholder="Confirm Password"
-        onChange={handleChange}
-      />
+        <form onSubmit={handleReset}>
+          <input
+            type="password"
+            placeholder="New Password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            required
+          />
 
-      <button>Reset Password</button>
-    </form>
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+
+          <button type="submit">Reset Password</button>
+        </form>
+      </div>
+    </div>
   );
 };
 

@@ -50,5 +50,6 @@ const App = () => {
     </Routes>
   );
 };
+navigate("/verify-otp", { state: { email } });
 
 export default App;

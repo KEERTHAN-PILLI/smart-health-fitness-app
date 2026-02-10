@@ -4,13 +4,11 @@ import api from "../api/axios";
 import "../styles/auth.css";
 
 const VerifyOtp = () => {
+  const [otp, setOtp] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
 
-  // email is passed from ForgotPassword page
   const email = location.state?.email;
-
-  const [otp, setOtp] = useState("");
 
   const handleVerify = async (e) => {
     e.preventDefault();
@@ -33,7 +31,7 @@ const VerifyOtp = () => {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2>Verify OTP</h2>
+        <h2>Enter OTP</h2>
 
         <form onSubmit={handleVerify}>
           <input
