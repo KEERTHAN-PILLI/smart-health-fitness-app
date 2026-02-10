@@ -88,11 +88,11 @@ router.post("/login", async (req, res) => {
  * FORGOT PASSWORD (SEND OTP)
  */
 router.post("/forgot-password", async (req, res) => {
-  const { email } = req.body;
+  const email = req.body.email?.trim().toLowerCase();
 
   try {
     const [users] = await db.execute(
-      "SELECT id FROM users WHERE email = ?",
+      "SELECT id FROM users WHERE LOWER(email) = ?",
       [email]
     );
 
@@ -115,6 +115,7 @@ router.post("/forgot-password", async (req, res) => {
     );
 
     return res.json({ message: "OTP sent successfully" });
+
   } catch (error) {
     console.error("FORGOT PASSWORD ERROR:", error);
     return res.status(500).json({ message: "Server error" });
@@ -152,34 +153,18 @@ router.post("/verify-otp", async (req, res) => {
  * RESET PASSWORD
  */
 router.post("/reset-password", async (req, res) => {
-  const { email, otp, newPassword } = req.body;
+  const { email, password } = req.body;
 
-  try {
-    const [users] = await db.execute(
-      "SELECT * FROM users WHERE email=? AND reset_code=?",
-      [email, otp]
-    );
+  const hashed = await bcrypt.hash(password, 10);
 
-    if (users.length === 0) {
-      return res.status(400).json({ message: "Invalid OTP" });
-    }
+  await db.execute(
+    "UPDATE users SET password=?, reset_code=NULL, reset_code_expiry=NULL WHERE email=?",
+    [hashed, email]
+  );
 
-    if (Date.now() > users[0].reset_code_expiry) {
-      return res.status(400).json({ message: "OTP expired" });
-    }
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    await db.execute(
-      "UPDATE users SET password=?, reset_code=NULL, reset_code_expiry=NULL WHERE email=?",
-      [hashedPassword, email]
-    );
-
-    return res.json({ message: "Password reset successful" });
-  } catch (error) {
-    console.error("RESET PASSWORD ERROR:", error);
-    return res.status(500).json({ message: "Server error" });
-  }
+  res.json({ message: "Password updated" });
 });
+
+
 
 export default router;
