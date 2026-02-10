@@ -7,6 +7,8 @@ import UserDashboard from "./pages/UserDashboard";
 import TrainerDashboard from "./pages/TrainerDashboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import VerifyOtp from "./pages/VerifyOtp";
+
 
 const App = () => {
   return (
@@ -16,6 +18,8 @@ const App = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/verify-otp" element={<VerifyOtp />} />
+
 
       <Route
         path="/profile"

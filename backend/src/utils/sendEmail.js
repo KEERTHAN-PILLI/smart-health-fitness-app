@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-const sendEmail = async (to, subject, text) => {
+export const sendEmail = async (to, subject, text) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -10,11 +10,9 @@ const sendEmail = async (to, subject, text) => {
   });
 
   await transporter.sendMail({
-    from: process.env.EMAIL_USER,
+    from: `"Smart Health App" <${process.env.EMAIL_USER}>`,
     to,
     subject,
     text,
   });
 };
-
-export default sendEmail;

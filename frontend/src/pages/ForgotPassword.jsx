@@ -17,6 +17,7 @@ const ForgotPassword = () => {
   return (
     <form onSubmit={handleSubmit}>
       <h2>Forgot Password</h2>
+      
       <input
         type="email"
         placeholder="Enter your email"
@@ -26,6 +27,7 @@ const ForgotPassword = () => {
       />
       <button>Send Code</button>
     </form>
+    
   );
 };
 
