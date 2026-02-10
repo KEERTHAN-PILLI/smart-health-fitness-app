@@ -7,7 +7,7 @@ export const register = async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  db.query(
+  db.execute(
     "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
     [name, email, hashedPassword, role],
     (err) => {
@@ -22,7 +22,7 @@ export const register = async (req, res) => {
 export const login = (req, res) => {
   const { email, password } = req.body;
 
-  db.query(
+  db.execute(
     "SELECT * FROM users WHERE email = ?",
     [email],
     async (err, result) => {

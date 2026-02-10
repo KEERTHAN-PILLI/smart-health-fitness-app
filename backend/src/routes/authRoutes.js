@@ -95,64 +95,44 @@ router.post("/login", async (req, res) => {
 router.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
 
-  const [users] = await db.query(
-    "SELECT id FROM users WHERE email = ?",
-    [email]
-  );
+  try {
+    const [users] = await db.execute(
+      "SELECT id FROM users WHERE email = ?",
+      [email]
+    );
 
-  if (users.length === 0) {
-    return res.status(404).json({ message: "Email not found" });
+    if (users.length === 0) {
+      return res.status(404).json({ message: "Email not found" });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiry = Date.now() + 10 * 60 * 1000;
+
+    await db.execute(
+      "UPDATE users SET reset_code=?, reset_code_expiry=? WHERE email=?",
+      [otp, expiry, email]
+    );
+
+    await sendEmail(
+      email,
+      "Smart Health - Password Reset OTP",
+      `Your OTP is ${otp}. It is valid for 10 minutes.`
+    );
+
+    return res.json({ message: "OTP sent successfully" });
+
+  } catch (error) {
+    console.error("FORGOT PASSWORD ERROR:", error);
+    return res.status(500).json({ message: "Server error" });
   }
-
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  const expiry = Date.now() + 10 * 60 * 1000; // 10 minutes
-
-  await db.query(
-    "UPDATE users SET reset_code=?, reset_code_expiry=? WHERE email=?",
-    [otp, expiry, email]
-  );
-
-  await sendEmail(
-    email,
-    "Password Reset OTP",
-    `Your OTP is ${otp}. Valid for 10 minutes.`
-  );
-
-  res.json({ message: "OTP sent to email" });
 });
 
-//reset password
-router.post("/reset-password", async (req, res) => {
-  const { email, otp, newPassword } = req.body;
-
-  const [users] = await db.query(
-    "SELECT * FROM users WHERE email=? AND reset_code=?",
-    [email, otp]
-  );
-
-  if (users.length === 0) {
-    return res.status(400).json({ message: "Invalid OTP" });
-  }
-
-  if (Date.now() > users[0].reset_code_expiry) {
-    return res.status(400).json({ message: "OTP expired" });
-  }
-
-  const hashed = await bcrypt.hash(newPassword, 10);
-
-  await db.query(
-    "UPDATE users SET password=?, reset_code=NULL, reset_code_expiry=NULL WHERE email=?",
-    [hashed, email]
-  );
-
-  res.json({ message: "Password reset successful" });
-});
 
 //verify otp
 router.post("/verify-otp", async (req, res) => {
   const { email, otp } = req.body;
 
-  const [users] = await db.query(
+  const [users] = await db.execute(
     "SELECT * FROM users WHERE email=? AND reset_code=?",
     [email, otp]
   );
