@@ -3,21 +3,24 @@ import nodemailer from "nodemailer";
 const sendEmail = async (to, subject, text) => {
   try {
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 587,               // ✅ CHANGE THIS
+      secure: false,           // ✅ MUST BE FALSE
+      requireTLS: true,        // ✅ IMPORTANT
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
     });
 
-    const info = await transporter.sendMail({
-      from: `"Smart Health App" <${process.env.EMAIL_USER}>`,
+    await transporter.sendMail({
+      from: `"smart.health.fitness.app@gmail.com" <${process.env.EMAIL_USER}>`,
       to,
       subject,
       text,
     });
 
-    console.log("EMAIL SENT:", info.response);
+    console.log("Email sent successfully");
   } catch (error) {
     console.error("EMAIL ERROR:", error);
     throw error;
