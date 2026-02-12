@@ -85,4 +85,66 @@ export const login = (req, res) => {
   }
 };
 
+  // STEP 2: Verify OTP
+export const verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({ message: "Email and OTP are required" });
+    }
+
+    const [rows] = await db.execute(
+      "SELECT id, reset_code, reset_code_expires FROM users WHERE email = ?",
+      [email]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const user = rows[0];
+
+    // Check if OTP matches
+    if (user.reset_code !== otp) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    // Check if OTP has expired
+    if (new Date() > new Date(user.reset_code_expires)) {
+      return res.status(400).json({ message: "OTP has expired" });
+    }
+
+    return res.json({ message: "OTP verified successfully" });
+  } catch (err) {
+    console.error("Error in verifyOtp:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+  // STEP 3: Reset Password
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Update password and clear reset code
+    await db.execute(
+      "UPDATE users SET password = ?, reset_code = NULL, reset_code_expires = NULL WHERE email = ?",
+      [hashedPassword, email]
+    );
+
+    return res.json({ message: "Password reset successfully" });
+  } catch (err) {
+    console.error("Error in resetPassword:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 };
