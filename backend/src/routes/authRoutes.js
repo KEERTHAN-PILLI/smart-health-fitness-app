@@ -108,10 +108,11 @@ router.post("/forgot-password", async (req, res) => {
       [otp, expiry, email]
     );
 
-    await sendEmail(
-      email,
-      "Smart Health - Password Reset OTP",
-      `Your OTP is ${otp}. It is valid for 10 minutes.`
+    await sendEmail({
+      to: email,
+      subject: "Your password reset code",
+      html: `<p>Your password reset code is <strong>${otp}</strong>. It will expire in 10 minutes.</p>`,
+    }
     );
 
     return res.json({ message: "OTP sent successfully" });
